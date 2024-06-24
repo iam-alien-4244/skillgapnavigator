@@ -15,7 +15,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python version
         uses: actions/setup-python@v4
@@ -26,6 +27,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Display Node.js version for debugging
+        run: node --version
+
+      - name: Display NPM version for debugging
+        run: npm --version
+
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
 
       - name: Install dependencies
         run: |
@@ -53,7 +65,7 @@ jobs:
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: python-app
 
@@ -67,3 +79,11 @@ jobs:
           app-name: 'skillgapnavigator'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_77317CAAEC0942C49D4F541507365522 }}
+
+      - name: Display web app URL for debugging
+        run: echo ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+
+
+
+
