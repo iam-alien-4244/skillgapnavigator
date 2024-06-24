@@ -1,0 +1,110 @@
+/* Header styling */
+.header {
+    background-color: #00416a;
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+/* Main box styling */
+.main-box {
+    background-color: #ffffff; /* White */
+    padding: 20px;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+/* Form styling */
+.form-group label {
+    font-weight: bold;
+}
+
+.form-control {
+    border-radius: 0;
+}
+
+.btn-success {
+    background-color: #28a745; /* Green */
+    border-color: #28a745; /* Green */
+    display: inline-block; /* Allows the width to adjust to content */
+	text-align: center; /* Center the text inside the button */
+}
+
+/* Loading message styling */
+#loading {
+    text-align: center;
+    font-style: italic;
+    display: none;
+}
+
+/* Scrollable box for results */
+.scroll-box {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+/* Fixed header for scrollable tables */
+.table-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.table-container h3 {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1000;
+    padding: 10px 0;
+    margin: 0;
+    text-align: center;
+}
+
+/* Centered table headers */
+table th {
+    text-align: center;
+}
+
+/* Table column width */
+table th,
+table td {
+    text-align: center;
+    width: auto; /* Allow columns to adjust width */
+    padding: 10px 15px; /* Add padding for better spacing */
+    white-space: nowrap;
+}
+
+/* Hover message styling */
+.hover-message {
+    background-color: rgba(0, 49, 83, 1.0); /* Green color with opacity */
+    color: #ffffff; /* White text */
+    padding: 20px;
+    border-radius: 5px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: none;
+    box-shadow: 0px 0px 10px #000000; /* Add shadow for better visibility */
+    white-space: nowrap; /* Prevents the text from wrapping */
+}
+
+
+.hover-message p {
+    margin-bottom: 5px;
+	display: inline-block; /* Show the message on hover */
+}
+
+
+/* Custom CSS for disabled download buttons */
+.btn-download.disabled {
+    background-color: #dddddd; /* Grey background */
+    border-color: #dddddd; /* Grey border */
+    color: #777777; /* Grey text */
+    pointer-events: none; /* Disable click events */
+}

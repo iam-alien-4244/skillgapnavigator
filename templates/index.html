@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill GAP Navigator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Custom CSS for disabled download buttons */
+        .btn-download.disabled {
+            color: #777777;
+            background-color: #dddddd;
+            border-color: #dddddd;
+            pointer-events: none; /* Disable click events */
+        }
+
+        /* Custom CSS for hovering message */
+        .hover-message {
+            background-color: rgba(0, 49, 83, 1.0); /* 80% opaque black background */
+            color: #ffffff; /* White text */
+            padding: 20px;
+            border-radius: 5px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            display: none;
+			box-shadow: 0px 0px 10px #000000; /* Add shadow for better visibility */
+        }
+
+        .hover-message p {
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="text-center">Skill GAP Navigator</h1>
+        </div>
+        
+		<div class="main-box">
+            <form id="skillForm">
+                
+				<div class="form-group">
+                    <label for="skill">Enter Required Skill:</label>
+                    <input type="text" id="skill" name="skill" class="form-control">
+                </div>
+                
+				<div class="form-group">
+                    <label for="certification">Enter Required Certification:</label>
+                    <input type="text" id="certification" name="certification" class="form-control">
+                </div>
+                
+				<button type="submit" class="btn btn-success btn-block">Fetch Employees</button>
+            </form>
+        </div>
+        
+		<div id="loading" class="text-info" style="display:none;">Fetching...</div>
+        <div id="result" class="mt-4"></div>
+        
+		<div id="hoverMessage" class="hover-message">
+            <p> File downloading </p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    
+	<script>
+        $(document).ready(function () {
+            $('#skillForm').submit(function (event) {
+                event.preventDefault();
+                $('#loading').show();
+                $('#result').html('');
+                $('#hoverMessage').hide(); // Hide any previous hover message
+
+                var formData = {
+                    'skill': $('#skill').val(),
+                    'certification': $('#certification').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/fetch_employees',
+                    data: formData,
+                    dataType: 'json',
+                    encode: true
+                }).done(function (data) {
+                    $('#loading').hide();
+                    var resultHtml = '';
+
+                    // Function to create download button HTML
+                    function createDownloadButton(filename, dataContent) {
+					
+						var isEnabled = dataContent && dataContent.trim() !== '' && dataContent.includes('<td>');
+						if (!filename || !isEnabled) {
+							return '<span class="btn btn-primary btn-download disabled"> Download </span>';
+						} 
+						
+						else {
+							return `<a href="/download/${filename.split('_')[0]}?data=${filename}" class="btn btn-primary btn-download">Download</a>`;
+						}
+					}
+
+                    // Append sections with their data and download buttons
+                    resultHtml += `
+                        <div class="table-container">
+							<h3>Employees with Required Skill:</h3>
+							<div class="scroll-box">${data.skill_employees ? data.skill_employees : '<p class="text-danger">No match data found!</p>'}</div>
+							<div class="text-center m-4">${createDownloadButton(data.skill_employees_file, data.skill_employees)}</div>
+						</div>`;
+
+                    resultHtml += `
+                        <div class="table-container">
+							<h3>Employees with Required Certification:</h3>
+							<div class="scroll-box">${data.cert_employees ? data.cert_employees : '<p class="text-danger">No match data found!</p>'}</div>
+							<div class="text-center m-4">${createDownloadButton(data.cert_employees_file, data.cert_employees)}</div>
+						</div>`;
+
+                    resultHtml += `
+                        <div class="table-container">
+							<h3>Employees with Both Required Skill and Certification:</h3>
+							<div class="scroll-box">${data.both_matching_employees ? data.both_matching_employees : '<p class="text-danger">No match data found!</p>'}</div>
+							<div class="text-center m-4">${createDownloadButton(data.both_matching_employees_file, data.both_matching_employees)}</div>
+						</div>`;
+
+                    $('#result').html(resultHtml);
+                });
+            });
+
+            // Show hover message after download
+            $(document).on('click', '.btn-download', function () {
+                $('#hoverMessage').show();
+				
+				setTimeout(function() {
+					$('#hoverMessage').fadeOut('slow');
+				}, 1500);
+            });
+        });
+    </script>
+</body>
+
+</html>
