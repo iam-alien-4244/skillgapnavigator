@@ -1,5 +1,5 @@
 blinker==1.8.2
-click==8.1.7
+click==8.0.4
 colorama==0.4.6
 Flask==2.0.2
 h5py==3.11.0
