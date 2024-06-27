@@ -24,16 +24,16 @@ blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 container_client = blob_service_client.get_container_client("generated-files")
 
 # SendGrid configuration
-sendgrid_api_key = 'your_sendgrid_api_key'
-sg = SendGridAPIClient(api_key=sendgrid_api_key)
+sendgrid_api_key = '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'
+sg = SendGridAPIClient(api_key = sendgrid_api_key)
 
 # Azure SQL Database configuration
 conn = pyodbc.connect(
-    'DRIVER={ODBC Driver 17 for SQL Server};'
-    'SERVER=your_server;'
-    'DATABASE=your_database;'
-    'UID=your_username;'
-    'PWD=your_password'
+    'DRIVER={ODBC Driver 18 for SQL Server};'
+    'SERVER   = skill-gap-navigator.database.windows.net;'
+    'DATABASE = SGN Data;'
+    'UID      = your_username;'
+    'PWD      = your_password'
 )
 cursor = conn.cursor()
 
@@ -95,9 +95,9 @@ def download_file(file_name, download_path):
 
 def send_access_request_email():
     email_message = Mail(
-        from_email='admin@yourdomain.com',
-        to_emails='admin@yourdomain.com',
-        subject='Access Request',
+        from_email ='admin@gdt.com',
+        to_emails  ='admin@gdt.com',
+        subject    ='Access Request',
         html_content='<strong>A new access request has been made.</strong>'
     )
     sg.send(email_message)
