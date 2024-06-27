@@ -24,7 +24,7 @@ blob_service_client = BlobServiceClient.from_connection_string(connect_str)
 container_client = blob_service_client.get_container_client("generated-files")
 
 # SendGrid configuration
-sendgrid_api_key = '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'
+sendgrid_api_key = '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'
 sg = SendGridAPIClient(api_key = sendgrid_api_key)
 
 # Azure SQL Database configuration
