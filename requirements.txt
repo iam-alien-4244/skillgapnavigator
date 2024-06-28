@@ -19,4 +19,3 @@ azure-storage-blob==12.20.0
 sendgrid==6.11.0
 flask-login==0.6.3
 flask-mysqldb==2.0.0
-MySQLdb 
