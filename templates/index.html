@@ -100,7 +100,12 @@
                     encode: true
                 }).done(function (data) {
                     $('#loading').hide();
-                    var resultHtml = '';
+                    // existing code to process data
+                }).fail(function (jqXHR, textStatus, errorThrown) {
+                    $('#loading').hide();
+                    $('#result').html('<p class="text-danger">Error fetching data: ' + textStatus + '</p>');
+                });
+
 
                     // Function to create download button HTML
                     function createDownloadButton(filename, dataContent) {
