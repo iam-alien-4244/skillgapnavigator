@@ -95,26 +95,29 @@
                         resultHtml += `
                         <div class="table-container">
                             <h3>Employees with Required Skill:</h3>
-                            <div class="scroll-box">${data.skill_employees ? data.skill_employees : '<p class="text-danger">No match data found!</p>'}</div>
+                            <div class="scroll-box">${data.skill_employees ? data.skill_employees : '<p class="text-danger">No data found!</p>'}</div>
                             <div class="text-center m-4">${createDownloadButton(data.skill_employees_file, data.skill_employees)}</div>
                         </div>`;
 
                         resultHtml += `
                         <div class="table-container">
                             <h3>Employees with Required Certification:</h3>
-                            <div class="scroll-box">${data.cert_employees ? data.cert_employees : '<p class="text-danger">No match data found!</p>'}</div>
+                            <div class="scroll-box">${data.cert_employees ? data.cert_employees : '<p class="text-danger">No data found!</p>'}</div>
                             <div class="text-center m-4">${createDownloadButton(data.cert_employees_file, data.cert_employees)}</div>
                         </div>`;
 
                         resultHtml += `
                         <div class="table-container">
                             <h3>Employees with Both Required Skill and Certification:</h3>
-                            <div class="scroll-box">${data.both_matching_employees ? data.both_matching_employees : '<p class="text-danger">No match data found!</p>'}</div>
+                            <div class="scroll-box">${data.both_matching_employees ? data.both_matching_employees : '<p class="text-danger">No data found!</p>'}</div>
                             <div class="text-center m-4">${createDownloadButton(data.both_matching_employees_file, data.both_matching_employees)}</div>
                         </div>`;
 
                         $('#result').html(resultHtml);
                     }
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    $('#loading').hide();
+                    $('#result').html(`<p class="text-danger">An error occurred: ${textStatus}</p>`);
                 });
             });
         });
