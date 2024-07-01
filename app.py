@@ -18,7 +18,7 @@ try:
     skills_data   = pd.read_csv('../data/skills.csv')
     employee_data = pd.read_excel('../data/June Data.xlsx', sheet_name = 'Sheet1', skiprows = 2)
 
-except:
+except Exception as e:
     app.logger.error(f"Error loading data files: {str(e)}")
     skill_data_data, employees_data = None, None
 
@@ -33,7 +33,7 @@ try:
         vectorizer       = pickle.loads(vectorizer_bytes)
         model            = pickle.loads(model_bytes)
 
-except:
+except Exception as e:
     app.logger.error(f"Error loading model: {str(e)}")
     vectorizer, model = None, None
 
@@ -122,7 +122,7 @@ def download(data_type):
         else:
             return "File not found", 404
 
-    except:
+    except Exception as e:
         app.logger.error(f"Error in download: {str(e)}")
         return "An error occurred during file download.", 500
 
