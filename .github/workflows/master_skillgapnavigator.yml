@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Python version
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -28,20 +28,21 @@ jobs:
           source venv/bin/activate
       
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          source venv/bin/activate
+          pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        run: |
+          zip -r release.zip . -x "venv/*"
 
       - name: Upload artifact for deployment jobs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -54,20 +55,20 @@ jobs:
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-app
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5DD6B25927B841C0982D085B27CA712C }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_422EC6BDCD7D4AF2B3E9B0C328903742 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_72DC95124D1E420EA381B73A696FAE56 }}
+
+#      - name: Login to Azure
+#        uses: azure/login@v1
+#        with:
+#          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_5DD6B25927B841C0982D085B27CA712C }}
+#          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_422EC6BDCD7D4AF2B3E9B0C328903742 }}
+#          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_72DC95124D1E420EA381B73A696FAE56 }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
@@ -75,4 +76,5 @@ jobs:
         with:
           app-name: 'skillgapnavigator'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE }}
           
