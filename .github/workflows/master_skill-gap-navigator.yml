@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.10'  # Ensure this matches your application requirements
 
       - name: Create and start virtual environment
         run: |
@@ -33,9 +33,6 @@ jobs:
           pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
-
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
 
       - name: Zip artifact for deployment
         run: |
@@ -52,7 +49,6 @@ jobs:
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
       - name: Download artifact from build job
@@ -63,7 +59,6 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
@@ -71,3 +66,10 @@ jobs:
           app-name: 'skill-gap-navigator'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_496B34DC2C6641058C6F76F51DBD2B0C }}
+
+      - name: Verify deployment
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net || exit 1
+        env:
+          AZURE_WEBAPP_NAME: 'skill-gap-navigator'
+
