@@ -2,10 +2,13 @@ import os, uuid, warnings, h5py, pickle, pandas as pd, logging
 from fuzzywuzzy import fuzz
 from flask import Flask, request, render_template, send_file, jsonify
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from config import ProductionConfig
+
 
 warnings.filterwarnings("ignore", category=UserWarning, message="Workbook contains no default style, apply openpyxl's default")
 
 app = Flask(__name__)
+app.config.from_object(ProductionConfig)
 
 # Configure logging
 logging.basicConfig(filename = 'app.log', level = logging.INFO)
