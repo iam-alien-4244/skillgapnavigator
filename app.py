@@ -1,6 +1,7 @@
 import os, uuid, warnings, h5py, pickle, pandas as pd, logging
 from fuzzywuzzy import fuzz
 from flask import Flask, request, render_template, send_file, jsonify
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 warnings.filterwarnings("ignore", category=UserWarning, message="Workbook contains no default style, apply openpyxl's default")
 
@@ -9,10 +10,15 @@ app = Flask(__name__)
 # Configure logging
 logging.basicConfig(filename = 'app.log', level = logging.INFO)
 
+# Azure Storage Configuration
+azure_storage_connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+blob_service_client             = BlobServiceClient.from_connection_string(azure_storage_connection_string)
+container_name                  = 'skillgapcontainer'
+
 dir_path = os.getcwd()
 
-skills_data_path   = os.path.join(dir_path, '.\data\skills.csv')
-employee_data_path = os.path.join(dir_path, '.\data\June data.xlsx')
+skills_data_path   = os.path.join(dir_path, './data/skills.csv')
+employee_data_path = os.path.join(dir_path, '.?data/June data.xlsx')
 model_path         = os.path.join(dir_path, './model/skill_classifier.hdf5')
 
 try:
@@ -70,18 +76,21 @@ def fetch_employees():
         else:
             both_matching_employees = None
     
-        skill_filename = os.path.join(save_dir, f'Employees with Required Skill {uuid.uuid4()}.csv') if skill_employees is not None else None
-        cert_filename  = os.path.join(save_dir, f'Employees with Required Certification {uuid.uuid4()}.csv') if cert_employees is not None else None
-        both_filename  = os.path.join(save_dir, f'Employees with Both required Skill & Certification {uuid.uuid4()}.csv') if both_matching_employees is not None else None
+        skill_filename = os.path.join(save_dir, f'Employees with required Skill {uuid.uuid4()}.csv') if skill_employees is not None else None
+        cert_filename  = os.path.join(save_dir, f'Employees with required Certification {uuid.uuid4()}.csv') if cert_employees is not None else None
+        both_filename  = os.path.join(save_dir, f'Employees with both_required Skill & Certification {uuid.uuid4()}.csv') if both_matching_employees is not None else None
     
         if skill_employees is not None:
             skill_employees.to_csv(skill_filename, index = False)
+            upload_file_to_azure(skill_filename, os.path.basename(skill_filename))
         
         if cert_employees is not None:
             cert_employees.to_csv(cert_filename, index = False)
+            upload_file_to_azure(cert_filename, os.path.basename(cert_filename))
         
         if both_matching_employees is not None:
             both_matching_employees.to_csv(both_filename, index = False)
+            upload_file_to_azure(both_filename, os.path.basename(both_filename))
     
         # Prepare response JSON
         response = {
