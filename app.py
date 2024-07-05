@@ -7,6 +7,7 @@ from config import ProductionConfig
 
 warnings.filterwarnings("ignore", category=UserWarning, message="Workbook contains no default style, apply openpyxl's default")
 
+# Initialize Flask app
 app = Flask(__name__)
 app.config.from_object(ProductionConfig)
 
@@ -16,17 +17,17 @@ logging.basicConfig(filename = 'app.log', level = logging.INFO)
 # Azure Storage Configuration
 azure_storage_connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 blob_service_client             = BlobServiceClient.from_connection_string(azure_storage_connection_string)
-container_name                  = 'skillgapcontainer'
+container_name                  = 'generated-files'
 
 dir_path = os.getcwd()
 
 skills_data_path   = os.path.join(dir_path, './data/skills.csv')
-employee_data_path = os.path.join(dir_path, '.?data/June data.xlsx')
+employee_data_path = os.path.join(dir_path, './data/June data.xlsx')
 model_path         = os.path.join(dir_path, './model/skill_classifier.hdf5')
 
 try:
     skills_data   = pd.read_csv(skills_data_path)
-    employee_data = pd.read_excel(employee_data_path, sheet_name='Sheet1', skiprows=2)
+    employee_data = pd.read_excel(employee_data_path, sheet_name = 'Sheet1', skiprows = 2)
 
 except Exception as e:
     app.logger.error(f"Error loading files: {str(e)}")
@@ -51,10 +52,21 @@ def fetch_matching_employees(input_skill, column, employee_df, threshold = 93):
     normalized_input    = ' '.join(input_skill.lower().split())
     input_vector        = vectorizer.transform([normalized_input])
     distances, indices  = model.kneighbors(input_vector)
-    closest_skills      = skills_data.iloc[indices[0]].apply(lambda row: ' '.join(row.values.astype(str)), axis=1)
+    closest_skills      = skills_data.iloc[indices[0]].apply(lambda row: ' '.join(row.values.astype(str)), axis = 1)
     employee_df[column] = employee_df[column].fillna('').apply(lambda x: ' '.join(x.lower().split())) 
     matching_employees  = employee_df[employee_df[column].apply(lambda x: any(fuzz.partial_ratio(normalized_input, x) >= threshold for skill in closest_skills))]
     return matching_employees
+
+# Upload files to Azure Blob Storage.
+def upload_file_to_azure(file_path, blob_name):
+    try:
+        blob_client = blob_service_client.get_blob_client(container = container_name, blob = blob_name)
+        with open(file_path, "rb") as data:
+            blob_client.upload_blob(data, overwrite = True)
+        app.logger.info(f"File {file_path} uploaded to Azure Blob Storage as {blob_name}.")
+    
+    except Exception as e:
+        app.logger.error(f"Error uploading file to Azure: {str(e)}")
 
 # Define route for the home page
 @app.route('/')
@@ -75,7 +87,7 @@ def fetch_employees():
         cert_employees  = fetch_matching_employees(certification, 'Certification', employee_data) if certification else None
     
         if skill and certification:
-            both_matching_employees = pd.merge(skill_employees, cert_employees, on='Employee ID', how='inner')
+            both_matching_employees = pd.merge(skill_employees, cert_employees, on = 'Employee ID', how = 'inner')
         else:
             both_matching_employees = None
     
@@ -128,7 +140,7 @@ def download(data_type):
 
 # Run the app
 if __name__ == '__main__':
-    os.environ['FLASK_DEBUG'] = 'production' # Set FLASK_ENV to 'production' to indicate the app is running in production
+    os.environ['FLASK_ENV'] = 'production' # Set FLASK_ENV to 'production' to indicate the app is running in production
     app.run(host = '0.0.0.0')
 
 
