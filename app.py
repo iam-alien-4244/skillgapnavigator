@@ -129,7 +129,7 @@ def download(data_type):
 # Run the app
 if __name__ == '__main__':
     os.environ['FLASK_DEBUG'] = 'production' # Set FLASK_ENV to 'production' to indicate the app is running in production
-    app.run(host = '0.0.0.0', port = 8000)
+    app.run(host = '0.0.0.0')
 
 
 
